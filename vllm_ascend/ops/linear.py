@@ -41,6 +41,7 @@ from vllm.model_executor.utils import set_weight_attrs
 from vllm.utils.torch_utils import direct_register_custom_op
 
 from vllm_ascend.ops.linear_op import get_parallel_op, get_replicated_op
+from vllm_ascend.quantization.hifp4_fake_quant import maybe_fake_quant_hifp4_activation
 from vllm_ascend.utils import enable_sp, maybe_trans_nz
 
 
@@ -84,6 +85,7 @@ class AscendUnquantizedLinearMethod(UnquantizedLinearMethod):
         x: torch.Tensor,
         bias: torch.Tensor | None = None,
     ) -> torch.Tensor:
+        x = maybe_fake_quant_hifp4_activation(x, layer.prefix)
         return torch.ops.vllm.unquantized_gemm(x, layer.weight, bias)
 
 

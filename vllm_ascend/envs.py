@@ -89,6 +89,23 @@ env_variables: dict[str, Callable[[], Any]] = {
     # 1: only quant case enable nz;
     # 2: enable nz as long as possible.
     "VLLM_ASCEND_ENABLE_NZ": lambda: int(os.getenv("VLLM_ASCEND_ENABLE_NZ", 1)),
+    # Whether to enable HIFP4 activation fake quantization before unquantized GEMM.
+    # This is for accuracy experiments with float weights that already contain
+    # dequant(quant(W)); default is disabled because it adds runtime overhead.
+    "VLLM_ASCEND_ENABLE_HIFP4_ACTIVATION_FAKE_QUANT": lambda: bool(
+        int(os.getenv("VLLM_ASCEND_ENABLE_HIFP4_ACTIVATION_FAKE_QUANT", "0"))
+    ),
+    # Comma-separated linear layer prefix patterns that should apply HIFP4
+    # activation fake quantization when the feature is enabled. Example:
+    # "gate_proj,up_proj,down_proj". Empty string matches no layers.
+    "VLLM_ASCEND_HIFP4_ACTIVATION_FAKE_QUANT_PREFIXES": lambda: os.getenv(
+        "VLLM_ASCEND_HIFP4_ACTIVATION_FAKE_QUANT_PREFIXES", ""
+    ),
+    # Quantization dimension for HIFP4 activation fake quantization. The default
+    # -1 quantizes along the last dimension of the GEMM input activation.
+    "VLLM_ASCEND_HIFP4_ACTIVATION_FAKE_QUANT_QDIM": lambda: int(
+        os.getenv("VLLM_ASCEND_HIFP4_ACTIVATION_FAKE_QUANT_QDIM", "-1")
+    ),
     # Decide whether we should enable CP parallelism.
     "VLLM_ASCEND_ENABLE_CONTEXT_PARALLEL": lambda: bool(int(os.getenv("VLLM_ASCEND_ENABLE_CONTEXT_PARALLEL", "0"))),
     # Whether to anbale dynamic EPLB
